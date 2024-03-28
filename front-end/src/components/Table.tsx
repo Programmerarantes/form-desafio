@@ -1,4 +1,4 @@
-import { Table, Button } from "antd"
+import { Table, Button, Spin } from "antd"
 import { useEffect, useState } from "react"
 
 interface Pessoa {
@@ -20,25 +20,29 @@ const fetchPessoas = async (): Promise<Pessoa[]> => {
 export const PessoasList = () => {
     const [users, setUser] = useState<Pessoa[]>([])
     const [error, setError] = useState<string | null>(null)
+    const [loading, setLoaing] = useState<boolean>(true)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoaing(true)
                 const data = await fetchPessoas()
                 setUser(data)
             } catch {
                 setError(error)
+            } finally {
+                setLoaing(false)
             }
         }
         fetchData()
-    })
+    }, [])
 
     const handleEdit = () => {
 
     }
 
     const handleDelete = () => {
-        
+
     }
 
     const columns = [
@@ -72,18 +76,22 @@ export const PessoasList = () => {
             key:'action',
             render: (text: string, record: Pessoa) => (
                 <>
-                    <Button type="primary" onClick={()=> handleEdit(record.id)}>Editar</Button>
-                    <Button type="dashed" onClick={() => handleDelete(record.id)}>Excluir</Button>
+                    <Button type="default" onClick={()=> handleEdit(record.id)}>Editar</Button>
+                    <Button type="primary" onClick={() => handleDelete(record.id)}>Excluir</Button>
                 </>
             )
         },
 
     ]
     return (
-        <Table<Pessoa> 
-            dataSource={users}
-            columns={columns}
-        />
+        <>
+            <Spin spinning={loading}>
+                <Table<Pessoa> 
+                dataSource={users}
+                columns={columns}
+                />
+            </Spin> 
+        </>   
     )
 }
 
